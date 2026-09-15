@@ -1,0 +1,108 @@
+.upload-container {
+  max-width: 640px;
+  margin: 24px auto;
+  padding: 24px;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  font-family: system-ui, sans-serif;
+}
+
+.preview img {
+  max-width: 100%;
+  max-height: 320px;
+  margin: 12px 0;
+  border-radius: 8px;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+button {
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+  background: #2563eb;
+  color: white;
+  cursor: pointer;
+}
+
+button:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 16px;
+}
+
+td {
+  padding: 6px 8px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.matched { color: #16a34a; font-weight: 600; }
+.unmatched { color: #d97706; font-weight: 600; }
+.error { color: #dc2626; }
+.payment-confirmation { display: grid; gap: 6px; margin: 16px 0; padding: 16px 18px; border: 1px solid #8ac7a8; border-radius: 8px; background: #edf9f1; color: #185c3b; box-shadow: 0 8px 24px rgba(24, 92, 59, .12); }
+.payment-confirmation strong { font-size: 16px; }
+.payment-confirmation span { color: #376b51; font-size: 13px; }
+.match-header { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+.new-customer-button { padding: 8px 12px; font-size: 13px; white-space: nowrap; }
+.payment-sync { margin-top: 24px; padding-top: 20px; border-top: 1px solid #e5e7eb; }
+.sync-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+.orders-link { color: #2563eb; font-size: 13px; font-weight: 700; text-decoration: none; }
+.payment-order-row { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 14px 0; border-bottom: 1px solid #eef0f2; }
+.payment-order-row > div:first-child { display: grid; gap: 4px; }
+.payment-order-row span, .payment-order-row small { color: #68716a; font-size: 13px; }
+.sync-actions { display: flex; align-items: center; gap: 10px; }
+.order-status { font-weight: 800; font-size: 12px; }
+.order-status.PENDING { color: #946b11; } .order-status.PAID { color: #1e5a48; } .order-status.EXPIRED, .order-status.CANCELLED { color: #a33b2b; }
+
+.customer-editor {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.eyebrow { color: #b04a2b; font-size: 11px; font-weight: 800; letter-spacing: 1.5px; }
+.section-heading h3 { margin: 6px 0 16px; }
+.customer-id { color: #64748b; font-size: 13px; }
+.edit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+.customer-editor label { display: grid; gap: 6px; margin-bottom: 12px; font-size: 13px; font-weight: 600; }
+.customer-editor input, .customer-editor textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #d1d5db; border-radius: 5px; font: inherit; }
+.customer-editor button { margin-top: 4px; }
+.confirmation-backdrop { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; padding: 20px; background: rgba(15, 23, 42, .48); }
+.confirmation-box { width: min(420px, 100%); padding: 28px; border: 1px solid #e6c77a; border-radius: 10px; background: #fffdf8; color: #654f16; box-shadow: 0 22px 60px rgba(15, 23, 42, .24); text-align: center; }
+.confirmation-icon { width: 34px; height: 34px; margin: 0 auto 14px; border-radius: 50%; background: #f3d986; color: #654f16; font-size: 23px; font-weight: 800; line-height: 34px; }
+.confirmation-box strong { display: block; color: #17211c; font-size: 18px; }
+.confirmation-box p { margin: 10px 0 20px; color: #68716a; font-size: 13px; line-height: 1.5; }
+.confirmation-actions { display: flex; justify-content: center; gap: 8px; }
+.confirmation-actions button { margin-top: 0; }
+.confirmation-actions .cancel-button { background: transparent; color: #654f16; border: 1px solid #c9aa58; }
+
+.candidates li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+@media (max-width: 640px) {
+  .match-header { align-items: flex-start; flex-direction: column; }
+  .edit-grid { grid-template-columns: 1fr; }
+  .sync-heading, .payment-order-row { align-items: flex-start; flex-direction: column; }
+  .sync-actions { width: 100%; justify-content: space-between; }
+}

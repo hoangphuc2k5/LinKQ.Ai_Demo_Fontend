@@ -1,0 +1,27 @@
+<div class="tx-container">
+  <h2>Danh sách giao dịch</h2>
+  <p *ngIf="isLoading">Đang tải...</p>
+
+  <table *ngIf="!isLoading">
+    <thead>
+      <tr>
+        <th>Ngày</th>
+        <th>Ngân hàng</th>
+        <th>Số tiền</th>
+        <th>Khách hàng khớp</th>
+        <th>Trạng thái</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let t of transactions">
+        <td>{{ t.TransactionDate || t.CreatedAt | date:'short' }}</td>
+        <td>{{ t.BankName || '—' }}</td>
+        <td>{{ t.Amount || '—' }} {{ t.Currency }}</td>
+        <td>{{ t.MatchedCustomerName || '—' }}</td>
+        <td>
+          <span class="badge" [ngClass]="t.MatchStatus">{{ t.MatchStatus }}</span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

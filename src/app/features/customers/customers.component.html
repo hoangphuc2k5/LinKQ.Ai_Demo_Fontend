@@ -1,0 +1,65 @@
+<main class="customers-page">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">CUSTOMER DIRECTORY</p>
+      <h1>Danh mục khách hàng</h1>
+      <p class="muted">Lưu số tài khoản để AI có thể đối chiếu giao dịch chính xác hơn.</p>
+    </div>
+    <button class="secondary" type="button" (click)="cancelEdit()" *ngIf="editingId !== null">Khách hàng mới</button>
+  </header>
+
+  <p class="notice success" *ngIf="successMessage">{{ successMessage }}</p>
+  <p class="notice error" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+  <section class="content-grid">
+    <form class="panel form-panel" (ngSubmit)="save()">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">{{ editingId === null ? 'ADD RECORD' : 'EDIT RECORD' }}</p>
+          <h2>{{ editingId === null ? 'Thêm khách hàng' : 'Cập nhật khách hàng' }}</h2>
+        </div>
+      </div>
+
+      <label>Họ và tên <input name="fullName" [(ngModel)]="form.fullName" required /></label>
+      <div class="two-columns">
+        <label>Số điện thoại <input name="phone" [(ngModel)]="form.phone" /></label>
+        <label>Email <input name="email" type="email" [(ngModel)]="form.email" /></label>
+      </div>
+      <label>Số tài khoản <input name="bankAccountNumber" [(ngModel)]="form.bankAccountNumber" /></label>
+      <div class="two-columns">
+        <label>Ngân hàng <input name="bankName" [(ngModel)]="form.bankName" /></label>
+        <label>Tên chủ tài khoản <input name="accountHolderName" [(ngModel)]="form.accountHolderName" /></label>
+      </div>
+      <label>Ghi chú <textarea name="note" rows="3" [(ngModel)]="form.note"></textarea></label>
+      <div class="form-actions">
+        <button type="submit" [disabled]="isSaving">{{ isSaving ? 'Đang lưu...' : 'Lưu khách hàng' }}</button>
+        <button class="secondary" type="button" (click)="cancelEdit()">Hủy</button>
+      </div>
+    </form>
+
+    <section class="panel list-panel">
+      <div class="panel-heading list-heading">
+        <div>
+          <p class="eyebrow">{{ customers.length }} RECORDS</p>
+          <h2>Danh sách đã lưu</h2>
+        </div>
+        <button class="icon-button" type="button" title="Tải lại danh sách" (click)="load()">↻</button>
+      </div>
+      <p class="muted" *ngIf="isLoading">Đang tải danh sách...</p>
+      <div class="empty" *ngIf="!isLoading && customers.length === 0">Chưa có khách hàng nào.</div>
+      <div class="customer-list" *ngIf="!isLoading && customers.length > 0">
+        <article class="customer-row" *ngFor="let customer of customers">
+          <div>
+            <strong>{{ customer.FullName }}</strong>
+            <p>{{ customer.BankName || 'Chưa có ngân hàng' }} · {{ customer.BankAccountNumber || 'Chưa có số tài khoản' }}</p>
+            <small>{{ customer.Phone || customer.Email || 'Chưa có thông tin liên hệ' }}</small>
+          </div>
+          <div class="row-actions">
+            <button class="secondary compact" type="button" (click)="edit(customer)">Sửa</button>
+            <button class="danger compact" type="button" (click)="remove(customer)">Xóa</button>
+          </div>
+        </article>
+      </div>
+    </section>
+  </section>
+</main>

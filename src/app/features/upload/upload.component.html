@@ -1,0 +1,120 @@
+<div class="upload-container">
+  <h2>Tải ảnh giao dịch thanh toán</h2>
+
+  <input type="file" accept="image/*" (change)="onFileSelected($event)" />
+
+  <div *ngIf="previewUrl" class="preview">
+    <img [src]="previewUrl" alt="preview" />
+  </div>
+
+  <div class="actions">
+    <button [disabled]="!selectedFile || isLoading" (click)="analyze()">
+      {{ isLoading ? 'Đang phân tích...' : 'Phân tích ảnh bằng AI' }}
+    </button>
+    <button *ngIf="selectedFile" (click)="reset()" [disabled]="isLoading">Xoá</button>
+  </div>
+
+  <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+  <div class="payment-confirmation" *ngIf="paymentConfirmationMessage" role="status">
+    <strong>✓ Thanh toán đã được xác nhận</strong>
+    <span>{{ paymentConfirmationMessage }}</span>
+  </div>
+
+  <div class="result" *ngIf="result">
+    <h3>Kết quả trích xuất</h3>
+    <table>
+      <tr><td>Ngân hàng</td><td>{{ result.extracted.bankName || '—' }}</td></tr>
+      <tr><td>Ngân hàng người gửi</td><td>{{ result.extracted.senderBankName || 'Chưa có trong ảnh' }}</td></tr>
+      <tr><td>Số TK người chuyển</td><td>{{ result.extracted.senderAccountNumber || '—' }}</td></tr>
+      <tr><td>Tên người chuyển</td><td>{{ result.extracted.senderAccountName || '—' }}</td></tr>
+      <tr><td>Ngân hàng người nhận</td><td>{{ result.extracted.receiverBankName || 'Chưa có trong ảnh' }}</td></tr>
+      <tr><td>Số TK người nhận</td><td>{{ result.extracted.receiverAccountNumber || 'Chưa có trong ảnh' }}</td></tr>
+      <tr><td>Tên người nhận</td><td>{{ result.extracted.receiverAccountName || 'Chưa có trong ảnh' }}</td></tr>
+      <tr><td>Số tiền</td><td>{{ result.extracted.amount || '—' }} {{ result.extracted.currency }}</td></tr>
+      <tr><td>Mã giao dịch</td><td>{{ result.extracted.transactionCode || '—' }}</td></tr>
+      <tr><td>Thời gian giao dịch</td><td>{{ result.extracted.transactionDate || '—' }}</td></tr>
+      <tr><td>Nội dung</td><td>{{ result.extracted.content || '—' }}</td></tr>
+      <tr><td>Độ tin cậy đọc ảnh</td><td>{{ result.extracted.confidence }}%</td></tr>
+    </table>
+
+    <div class="match-header">
+      <h3>Kết quả đối chiếu khách hàng</h3>
+      <button type="button" class="new-customer-button" (click)="createNewCustomer()">+ Tạo khách hàng mới</button>
+    </div>
+    <div [ngSwitch]="result.transaction.MatchStatus">
+      <p *ngSwitchCase="'MATCHED'" class="matched">
+        ✅ Khớp với khách hàng: <b>{{ result.transaction.MatchedCustomerName }}</b>
+        (độ tin cậy {{ result.transaction.MatchConfidence }}%)
+      </p>
+      <div *ngSwitchDefault>
+        <p class="unmatched">
+          ⚠️ Chưa xác định chắc chắn khách hàng nhận tiền. Vui lòng kiểm tra số tài khoản/tên người nhận hoặc chọn thủ công:
+        </p>
+        <ul class="candidates">
+          <li *ngFor="let c of result.matchCandidates">
+            {{ c.customer.FullName }} — {{ c.customer.BankAccountNumber }}
+            (khớp {{ c.confidence }}%)
+            <button (click)="confirmCandidate(c.customer)">Chọn</button>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+      <section class="customer-editor" *ngIf="matchedCustomer || isCreatingCustomer">
+        <div class="section-heading">
+          <div><span class="eyebrow">{{ isCreatingCustomer ? 'NEW CUSTOMER' : 'MATCHED CUSTOMER' }}</span><h3>Hồ sơ khách hàng</h3></div>
+          <span class="customer-id" *ngIf="matchedCustomer">#{{ matchedCustomer.CustomerId }}</span>
+        </div>
+        <div class="edit-grid">
+          <label>Họ và tên <input name="matchedFullName" [(ngModel)]="customerForm.fullName" /></label>
+          <label>Số tài khoản <input name="matchedAccount" [(ngModel)]="customerForm.bankAccountNumber" /></label>
+          <label>Ngân hàng <input name="matchedBank" [(ngModel)]="customerForm.bankName" /></label>
+          <label>Số điện thoại <input name="matchedPhone" [(ngModel)]="customerForm.phone" /></label>
+          <label>Email <input name="matchedEmail" [(ngModel)]="customerForm.email" /></label>
+          <label>Tên chủ tài khoản <input name="matchedHolder" [(ngModel)]="customerForm.accountHolderName" /></label>
+        </div>
+        <label>Ghi chú <textarea name="matchedNote" rows="2" [(ngModel)]="customerForm.note"></textarea></label>
+        <button type="button" (click)="saveMatchedCustomer()" [disabled]="isSavingCustomer">
+          {{ isSavingCustomer ? 'Đang lưu...' : (isCreatingCustomer ? 'Tạo khách hàng' : 'Cập nhật hồ sơ khách hàng') }}
+        </button>
+        <div class="confirmation-backdrop" *ngIf="showCustomerUpdateConfirmation" (click)="cancelCustomerUpdate()">
+          <div class="confirmation-box" role="dialog" aria-modal="true" aria-labelledby="confirmation-title" (click)="$event.stopPropagation()">
+            <div class="confirmation-icon">!</div>
+            <strong id="confirmation-title">{{ isCreatingCustomer ? 'Xác nhận tạo khách hàng?' : 'Xác nhận cập nhật thông tin?' }}</strong>
+            <p>{{ isCreatingCustomer ? 'Khách hàng mới sẽ được lưu vào danh mục và gắn với giao dịch này.' : 'Thông tin khách hàng hiện tại sẽ được thay thế bằng dữ liệu bạn vừa nhập.' }}</p>
+            <div class="confirmation-actions">
+              <button type="button" (click)="confirmCustomerUpdate()" [disabled]="isSavingCustomer">
+                {{ isSavingCustomer ? 'Đang lưu...' : 'Xác nhận cập nhật' }}
+              </button>
+              <button type="button" class="cancel-button" (click)="cancelCustomerUpdate()" [disabled]="isSavingCustomer">Hủy</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="payment-sync" *ngIf="matchedCustomer">
+        <div class="sync-heading">
+          <div><span class="eyebrow">PAYMENT SYNC</span><h3>Đơn thanh toán của khách hàng</h3></div>
+          <a routerLink="/payment-orders" class="orders-link">Quản lý đơn thanh toán</a>
+        </div>
+        <p class="muted" *ngIf="isLoadingPaymentOrders">Đang tải đơn thanh toán...</p>
+        <p class="muted" *ngIf="!isLoadingPaymentOrders && paymentOrders.length === 0">
+          Khách hàng chưa có đơn thanh toán. <a routerLink="/payment-orders">Tạo đơn mới</a>
+        </p>
+        <div class="payment-order-row" *ngFor="let order of paymentOrders">
+          <div>
+            <strong>{{ order.Amount | number }} {{ order.Currency }}</strong>
+            <span>{{ order.Description || 'Không có nội dung' }}</span>
+            <small>Mã thanh toán: {{ order.PaymentCode }}</small>
+          </div>
+          <div class="sync-actions">
+            <span class="order-status" [class]="order.Status">{{ order.Status }}</span>
+            <button type="button" *ngIf="order.Status === 'PENDING'" (click)="settlePaymentOrder(order)" [disabled]="settlingOrderId === order.PaymentOrderId">
+              {{ settlingOrderId === order.PaymentOrderId ? 'Đang đồng bộ...' : 'Gắn giao dịch này vào đơn' }}
+            </button>
+          </div>
+        </div>
+      </section>
+  </div>
+</div>

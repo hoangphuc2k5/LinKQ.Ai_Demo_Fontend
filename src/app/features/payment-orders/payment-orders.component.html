@@ -1,0 +1,58 @@
+<main class="orders-page">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">PAYMENT OPERATIONS</p>
+      <h1>Đơn thanh toán</h1>
+      <p class="muted">Tạo khoản phải thu và theo dõi tình trạng thanh toán theo từng khách hàng.</p>
+    </div>
+  </header>
+
+  <p class="notice success" *ngIf="successMessage">{{ successMessage }}</p>
+  <p class="notice error" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+  <section class="workspace">
+    <form class="panel order-form" (ngSubmit)="create()">
+      <div class="panel-heading">
+        <div><p class="eyebrow">NEW ORDER</p><h2>Tạo đơn mới</h2></div>
+      </div>
+      <label>Khách hàng
+        <select name="customerId" [(ngModel)]="form.customerId" (ngModelChange)="selectCustomer()" required>
+          <option [ngValue]="null">Chọn khách hàng</option>
+          <option *ngFor="let customer of customers" [ngValue]="customer.CustomerId">
+            {{ customer.FullName }} · {{ customer.BankAccountNumber || 'Chưa có STK' }}
+          </option>
+        </select>
+      </label>
+      <label>Mã thanh toán <input name="paymentCode" type="text" maxlength="100" [(ngModel)]="form.paymentCode" placeholder="Ví dụ: TT-09-2026-001" required /></label>
+      <div class="two-columns">
+        <label>Số tiền <input name="amount" type="number" min="1" [(ngModel)]="form.amount" required /></label>
+        <label>Đơn vị tiền <select name="currency" [(ngModel)]="form.currency"><option>VND</option><option>USD</option></select></label>
+      </div>
+      <label>Hạn thanh toán <input name="dueDate" type="date" [(ngModel)]="form.dueDate" /></label>
+      <label>Nội dung <textarea name="description" rows="4" [(ngModel)]="form.description" placeholder="Ví dụ: Phí dịch vụ tháng 09/2026"></textarea></label>
+      <button type="submit" [disabled]="isSaving">{{ isSaving ? 'Đang tạo...' : 'Tạo đơn thanh toán' }}</button>
+    </form>
+
+    <section class="panel status-panel">
+      <div class="panel-heading filter-heading">
+        <div><p class="eyebrow">CUSTOMER STATUS</p><h2>Tình trạng khách hàng</h2></div>
+        <button class="refresh" type="button" title="Tải lại" (click)="loadOrders()">↻</button>
+      </div>
+      <p class="muted" *ngIf="!selectedCustomerId">Chọn khách hàng để xem các đơn đang theo dõi.</p>
+      <div class="status-summary" *ngIf="selectedCustomerId">
+        <strong>{{ customerName(selectedCustomerId) }}</strong>
+        <span>{{ orders.length }} đơn trong danh sách theo dõi</span>
+      </div>
+      <p class="muted" *ngIf="isLoading">Đang tải...</p>
+      <div class="empty" *ngIf="!isLoading && selectedCustomerId && orders.length === 0">Khách hàng chưa có đơn thanh toán.</div>
+      <div class="order-list" *ngIf="!isLoading && orders.length > 0">
+        <article class="order-row" *ngFor="let order of orders">
+          <div><strong>{{ order.Amount | number }} {{ order.Currency }}</strong><p>{{ order.Description || 'Không có nội dung' }}</p><small>Mã thanh toán: {{ order.PaymentCode }} · Hạn: {{ order.DueDate ? (order.DueDate | date:'dd/MM/yyyy') : 'Không đặt hạn' }}</small></div>
+          <select [ngModel]="order.Status" (ngModelChange)="changeStatus(order, $event)" [ngModelOptions]="{standalone: true}" [class]="'status ' + order.Status">
+            <option value="PENDING">Chờ thanh toán</option><option value="PAID">Đã thanh toán</option><option value="EXPIRED">Quá hạn</option><option value="CANCELLED">Đã hủy</option>
+          </select>
+        </article>
+      </div>
+    </section>
+  </section>
+</main>
