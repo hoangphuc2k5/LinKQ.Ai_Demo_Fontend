@@ -80,7 +80,8 @@ export class PaymentOrdersComponent implements OnInit {
     });
   }
 
-  customerName(customerId: number): string {
-    return this.customers.find((customer) => customer.CustomerId === customerId)?.FullName || 'Khách hàng';
+  customerName(customerId: number | string): string {
+    const customer = this.customers.find((item) => String(item.CustomerId) === String(customerId));
+    return customer?.FullName || this.orders.find((order) => String(order.CustomerId) === String(customerId))?.FullName || 'Khách hàng';
   }
 }

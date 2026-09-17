@@ -22,6 +22,7 @@
             {{ customer.FullName }} · {{ customer.BankAccountNumber || 'Chưa có STK' }}
           </option>
         </select>
+        <small class="selected-customer" *ngIf="form.customerId">Đang chọn: {{ customerName(form.customerId) }}</small>
       </label>
       <label>Mã thanh toán <input name="paymentCode" type="text" maxlength="100" [(ngModel)]="form.paymentCode" placeholder="Ví dụ: TT-09-2026-001" required /></label>
       <div class="two-columns">
@@ -38,7 +39,7 @@
         <div><p class="eyebrow">CUSTOMER STATUS</p><h2>Tình trạng khách hàng</h2></div>
         <button class="refresh" type="button" title="Tải lại" (click)="loadOrders()">↻</button>
       </div>
-      <p class="muted" *ngIf="!selectedCustomerId">Chọn khách hàng để xem các đơn đang theo dõi.</p>
+      <p class="muted" *ngIf="!selectedCustomerId">Đang hiển thị toàn bộ đơn thanh toán.</p>
       <div class="status-summary" *ngIf="selectedCustomerId">
         <strong>{{ customerName(selectedCustomerId) }}</strong>
         <span>{{ orders.length }} đơn trong danh sách theo dõi</span>
@@ -47,7 +48,12 @@
       <div class="empty" *ngIf="!isLoading && selectedCustomerId && orders.length === 0">Khách hàng chưa có đơn thanh toán.</div>
       <div class="order-list" *ngIf="!isLoading && orders.length > 0">
         <article class="order-row" *ngFor="let order of orders">
-          <div><strong>{{ order.Amount | number }} {{ order.Currency }}</strong><p>{{ order.Description || 'Không có nội dung' }}</p><small>Mã thanh toán: {{ order.PaymentCode }} · Hạn: {{ order.DueDate ? (order.DueDate | date:'dd/MM/yyyy') : 'Không đặt hạn' }}</small></div>
+          <div>
+            <strong>{{ order.FullName || customerName(order.CustomerId) }}</strong>
+            <strong>{{ order.Amount | number }} {{ order.Currency }}</strong>
+            <p>{{ order.Description || 'Không có nội dung' }}</p>
+            <small>Mã thanh toán: {{ order.PaymentCode }} · Hạn: {{ order.DueDate ? (order.DueDate | date:'dd/MM/yyyy') : 'Không đặt hạn' }}</small>
+          </div>
           <select [ngModel]="order.Status" (ngModelChange)="changeStatus(order, $event)" [ngModelOptions]="{standalone: true}" [class]="'status ' + order.Status">
             <option value="PENDING">Chờ thanh toán</option><option value="PAID">Đã thanh toán</option><option value="EXPIRED">Quá hạn</option><option value="CANCELLED">Đã hủy</option>
           </select>

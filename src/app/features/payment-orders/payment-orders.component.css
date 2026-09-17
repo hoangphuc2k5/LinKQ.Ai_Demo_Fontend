@@ -14,7 +14,7 @@ button { border: 0; border-radius: 5px; padding: 11px 16px; background: #1e5a48;
 .two-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .refresh { padding: 7px 10px; font-size: 20px; line-height: 1; }
 .status-summary { display: flex; justify-content: space-between; gap: 12px; margin: 24px 0 10px; padding: 15px; background: #e8f0eb; border-left: 4px solid #1e5a48; } .status-summary span { color: #68716a; font-size: 13px; }
-.order-row { display: flex; justify-content: space-between; align-items: center; gap: 18px; padding: 17px 0; border-bottom: 1px solid #e4e1d9; } .order-row:last-child { border-bottom: 0; }
+.order-row { display: flex; justify-content: space-between; align-items: center; gap: 18px; padding: 17px 0; border-bottom: 1px solid #e4e1d9; } .order-row:last-child { border-bottom: 0; } .order-row > div > strong { display: block; }
 .order-row p, .order-row small { display: block; margin: 5px 0 0; color: #68716a; } .status { width: auto; font-size: 12px; font-weight: 800; } .status.PENDING { color: #946b11; } .status.PAID { color: #1e5a48; } .status.EXPIRED, .status.CANCELLED { color: #a33b2b; }
 .notice { margin: 20px 0; padding: 12px 14px; border-radius: 5px; } .success { background: #e4f1e8; color: #1e5a48; } .error { background: #f9e5df; color: #9c3629; } .empty { padding: 36px 0; text-align: center; color: #68716a; }
 @media (max-width: 760px) { .orders-page { padding: 32px 16px 52px; } .workspace { grid-template-columns: 1fr; } .two-columns { grid-template-columns: 1fr; } .order-row { align-items: flex-start; flex-direction: column; } .status { width: 100%; } }
