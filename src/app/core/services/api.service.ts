@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AnalyzeResponse, Customer, CustomerInput, PaymentOrder, Transaction } from '../models/models';
 
-const API_BASE = 'http://localhost:3000/api';
+const API_BASE = 'https://africa-easy-galaxy-non.trycloudflare.com/api';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
