@@ -1,0 +1,102 @@
+<main class="warehouse-upload-page">
+  <section class="upload-tools">
+    <h2>Tạo phiếu xuất kho</h2>
+    <input type="file" accept="image/*" (change)="onFileSelected($event)" />
+    <div class="actions">
+      <button type="button" [disabled]="!selectedFile || isLoading" (click)="analyze()">
+        {{ isLoading ? 'Đang phân tích...' : 'Tạo phiếu xuất kho bằng AI' }}
+      </button>
+      <button type="button" class="secondary" *ngIf="selectedFile" (click)="reset()" [disabled]="isLoading">Xóa</button>
+    </div>
+    <img *ngIf="previewUrl && !warehouseSlip" class="preview" [src]="previewUrl" alt="Ảnh đơn hàng" />
+    <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
+  </section>
+
+  <section class="warehouse-slip" *ngIf="warehouseSlip">
+    <div class="print-slip-header">
+      <div class="print-company">
+        <div class="print-company-brand" *ngIf="warehouseSlip.nha_cung_cap.logo_url">
+          <img class="print-logo" [src]="warehouseSlip.nha_cung_cap.logo_url" alt="Logo" />
+        </div>
+        <strong>{{ warehouseSlip.nha_cung_cap.ten || 'TÊN CÔNG TY' }}</strong>
+        <span>{{ warehouseSlip.nha_cung_cap.dia_chi || 'Địa chỉ công ty' }}</span>
+        <span *ngIf="warehouseSlip.nha_cung_cap.ma_so_thue || warehouseSlip.nha_cung_cap.so_tai_khoan">
+          Mã số thuế: {{ warehouseSlip.nha_cung_cap.ma_so_thue || '—' }}<ng-container *ngIf="warehouseSlip.nha_cung_cap.so_tai_khoan"> &nbsp;-&nbsp; Số tài khoản: {{ warehouseSlip.nha_cung_cap.so_tai_khoan }}</ng-container>
+        </span>
+        <span *ngIf="warehouseSlip.nha_cung_cap.hotline || warehouseSlip.nha_cung_cap.fax">
+          Hotline: {{ warehouseSlip.nha_cung_cap.hotline || '—' }}<ng-container *ngIf="warehouseSlip.nha_cung_cap.fax"> &nbsp;-&nbsp; Fax: {{ warehouseSlip.nha_cung_cap.fax }}</ng-container>
+        </span>
+        <span *ngIf="warehouseSlip.nha_cung_cap.dia_diem_kinh_doanh">DDKD (tổng kho): {{ warehouseSlip.nha_cung_cap.dia_diem_kinh_doanh }}</span>
+        <span *ngIf="warehouseSlip.nha_cung_cap.chi_nhanh">{{ warehouseSlip.nha_cung_cap.chi_nhanh }}</span>
+      </div>
+
+      <div class="print-slip-title">
+        <h1>PHIẾU XUẤT KHO</h1>
+        <em>(KIÊM LỆNH GIAO HÀNG)</em>
+        <span>Ngày {{ formattedNgayLap }}</span>
+      </div>
+
+      <div class="print-slip-code">
+        <span>Ký hiệu: <strong>{{ warehouseSlip.ky_hieu || warehouseSlip.warehouse_slip_id || '—' }}</strong></span>
+        <button type="button" (click)="print()">In phiếu</button>
+      </div>
+    </div>
+
+    <div class="print-slip-info">
+      <div class="info-row-split">
+        <div><span>Nhân viên bán hàng:</span> {{ warehouseSlip.nhan_vien_ban_hang.ten || '—' }} {{ warehouseSlip.nhan_vien_ban_hang.sdt || '' }}</div>
+        <div><span>Số PO:</span> {{ warehouseSlip.so_po || '—' }}</div>
+      </div>
+      <div *ngIf="warehouseSlip.ten_nguoi_lien_he"><span>Tên người liên hệ:</span> {{ warehouseSlip.ten_nguoi_lien_he }}</div>
+      <div><span>Tên khách hàng:</span> {{ warehouseSlip.khach_hang.ten || '—' }}</div>
+      <div><span>Địa chỉ:</span> {{ warehouseSlip.khach_hang.dia_chi || '—' }}</div>
+      <div><span>Địa chỉ giao hàng:</span> {{ warehouseSlip.dia_chi_giao_hang.dia_chi || '—' }} {{ warehouseSlip.dia_chi_giao_hang.sdt ? '- ' + warehouseSlip.dia_chi_giao_hang.sdt : '' }}</div>
+    </div>
+
+    <table class="print-slip-table">
+      <thead>
+        <tr>
+          <th>STT</th><th>Mã số</th><th>TÊN SẢN PHẨM</th><th>ĐVT</th><th>SL</th><th>ĐƠN GIÁ</th><th>THÀNH TIỀN</th><th>LÔ/LOT</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of warehouseSlip.chi_tiet_hang_hoa">
+          <td>{{ item.stt }}</td>
+          <td>{{ item.ma_so || '—' }}</td>
+          <td>{{ item.ten_san_pham }}<small *ngIf="item.khuyen_mai">Hàng khuyến mãi không thu tiền</small></td>
+          <td>{{ item.dvt || '—' }}</td>
+          <td>{{ item.sl }}</td>
+          <td>{{ item.khuyen_mai ? '' : (item.don_gia | number) }}</td>
+          <td>{{ item.khuyen_mai ? '' : (item.thanh_tien | number) }}</td>
+          <td>{{ item.lo_lot || '—' }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="print-slip-totals">
+      <div><span>Cộng tiền hàng</span><strong>{{ warehouseSlip.tong_ket.cong_tien_hang | number }}</strong></div>
+      <div *ngIf="warehouseSlip.tong_ket.chiet_khau"><span>Chiết khấu</span><strong>{{ warehouseSlip.tong_ket.chiet_khau | number }}</strong></div>
+      <div><span>Thuế GTGT ({{ warehouseSlip.tong_ket.thue_suat_gtgt || '—' }})</span><strong>{{ warehouseSlip.tong_ket.tien_thue_gtgt | number }}</strong></div>
+      <div class="print-grand-total"><span>TỔNG TIỀN THANH TOÁN</span><strong>{{ warehouseSlip.tong_ket.tong_tien_thanh_toan | number }}</strong></div>
+    </div>
+
+    <p class="print-slip-note" *ngIf="warehouseSlip.ghi_chu"><strong>Ghi chú:</strong> {{ warehouseSlip.ghi_chu }}</p>
+
+    <div class="print-slip-signatures">
+      <div><strong>Người nhận hàng</strong><small>(Ký, ghi rõ họ tên)</small></div>
+      <div><strong>Người giao hàng</strong><small>(Ký, ghi rõ họ tên)</small></div>
+      <div><strong>Thủ kho</strong><small>(Ký, ghi rõ họ tên)</small></div>
+    </div>
+
+    <div class="print-slip-footer">
+      <p class="print-slip-caution">
+        Lưu ý: khách hàng vui lòng kiểm tra hàng hóa trước khi ký nhận, sau khi ký nhận hàng hóa đã được chuyển giao quyền sở hữu và
+        {{ warehouseSlip.nha_cung_cap.ten || 'công ty' }} không giải quyết vấn đề về số lượng hàng hóa.
+      </p>
+      <div class="print-slip-meta">
+        <span>Trang: {{ warehouseSlip.trang || '1/1' }}</span>
+        <span *ngIf="warehouseSlip.thoi_gian_in">{{ warehouseSlip.thoi_gian_in }}</span>
+      </div>
+    </div>
+  </section>
+</main>

@@ -85,3 +85,52 @@ export interface AnalyzeResponse {
   extracted: ExtractedPaymentInfo;
   matchCandidates: MatchCandidate[];
 }
+
+export interface WarehouseSlipItem {
+  stt: number;
+  ma_so: string | null;
+  ten_san_pham: string;
+  dvt: string | null;
+  sl: number;
+  don_gia: number;
+  thanh_tien: number;
+  lo_lot: string | null;
+  khuyen_mai: boolean;
+}
+
+export interface WarehouseSlip {
+  warehouse_slip_id?: number;
+  original_file_name?: string;
+  created_at?: string;
+  ky_hieu: string | null;
+  ngay_lap: string | null;
+  nha_cung_cap: {
+    ten: string | null;
+    logo_url?: string | null;
+    ma_so_thue: string | null;
+    so_tai_khoan: string | null;
+    ngan_hang: string | null;
+    dia_chi: string | null;
+    hotline: string | null;
+    fax?: string | null;
+    dia_diem_kinh_doanh?: string | null;
+    chi_nhanh?: string | null;
+  };
+  nhan_vien_ban_hang: { ten: string | null; sdt: string | null };
+  so_po: string | null;
+  ten_nguoi_lien_he?: string | null;
+  khach_hang: { ten: string | null; dia_chi: string | null };
+  dia_chi_giao_hang: { dia_chi: string | null; sdt: string | null };
+  ghi_chu: string | null;
+  trang?: string | null;
+  thoi_gian_in?: string | null;
+  chi_tiet_hang_hoa: WarehouseSlipItem[];
+  tong_ket: {
+    cong_tien_hang: number | null;
+    chiet_khau: number | null;
+    thue_suat_gtgt: string | null;
+    tien_thue_gtgt: number | null;
+    tong_tien_thanh_toan: number | null;
+  };
+  _meta?: { can_xac_nhan_thu_cong: boolean; canh_bao: string[] };
+}

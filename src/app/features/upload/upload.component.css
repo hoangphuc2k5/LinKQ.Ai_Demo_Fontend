@@ -1,3 +1,88 @@
+.mode-switch { display: flex; gap: 8px; margin: 16px 0; }
+.mode-switch button { border: 1px solid #c8d0d5; background: #fff; padding: 9px 14px; cursor: pointer; }
+.mode-switch .active-mode { background: #173f4f; color: #fff; border-color: #173f4f; }
+.warehouse-page { max-width: 1120px; border: 0; border-radius: 0; }
+.warehouse-page > h2 { color: #173f4f; }
+.warehouse-slip, .warehouse-slip * { font-family: 'Times New Roman', Times, serif; }
+.warehouse-slip { width: 210mm; max-width: 100%; box-sizing: border-box; margin: 24px auto 0; padding: 14mm 12mm 12mm; border: 1px solid #9da6a8; background: #fff; color: #202728; }
+.slip-toolbar { display: grid; grid-template-columns: 1.25fr 1fr .7fr; align-items: start; gap: 12px; padding-bottom: 10px; border-bottom: 1px solid #6e7778; }
+.slip-toolbar > div:first-child { display: grid; gap: 3px; font-size: 11px; line-height: 1.3; }
+.company-name { font-size: 14px; text-transform: uppercase; }
+.slip-title { display: grid; justify-items: center; gap: 3px; text-align: center; }
+.slip-title h3 { margin: 0; font-size: 18px; letter-spacing: .4px; }
+.slip-title em { font-size: 12px; font-weight: 700; }
+.slip-title span { margin-top: 7px; font-size: 11px; }
+.slip-actions { display: grid; justify-items: end; gap: 8px; font-size: 10px; }
+.slip-info-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 5px 16px; margin: 14px 0 12px; font-size: 11px; line-height: 1.35; }
+.slip-info-grid > div { display: flex; gap: 5px; min-width: 0; }
+.slip-info-grid > div:nth-child(4), .slip-info-grid > div:nth-child(5), .slip-info-grid > div:nth-child(6) { grid-column: span 3; }
+.slip-info-grid span { white-space: nowrap; }
+.slip-info-grid strong { font-weight: 400; overflow-wrap: anywhere; }
+.slip-info-grid small { color: #65727a; }
+.slip-table-wrap { overflow-x: auto; }
+.slip-table { width: 100%; border-collapse: collapse; min-width: 0; font-size: 10px; }
+.slip-table th, .slip-table td { border: 1px solid #90999b; padding: 6px 5px; text-align: left; vertical-align: top; }
+.slip-table th { background: #eef0ef; color: #202728; text-align: center; font-weight: 700; }
+.slip-table th:nth-child(1) { width: 5%; }.slip-table th:nth-child(2) { width: 13%; }.slip-table th:nth-child(3) { width: 34%; }.slip-table th:nth-child(4) { width: 8%; }.slip-table th:nth-child(5) { width: 7%; }.slip-table th:nth-child(6), .slip-table th:nth-child(7) { width: 13%; }.slip-table th:nth-child(8) { width: 10%; }
+.slip-table td:nth-child(1), .slip-table td:nth-child(5) { text-align: center; }
+.slip-table small { display: block; color: #9b5e2e; margin-top: 3px; }
+.slip-totals { margin: 12px 0 0 auto; max-width: 360px; font-size: 11px; }
+.slip-totals div { display: flex; justify-content: space-between; border-bottom: 1px solid #c5cccd; padding: 5px 0; }
+.slip-totals .grand-total { font-size: 13px; color: #202728; border-bottom: 2px solid #4e5758; }
+.slip-warning { display: grid; gap: 4px; background: #fff5df; color: #734c14; padding: 12px; margin: 14px 0; }
+.slip-note { margin-top: 12px; font-size: 11px; }
+.slip-signatures { display: grid; grid-template-columns: repeat(3, 1fr); min-height: 100px; margin-top: 18px; text-align: center; font-size: 11px; }
+.slip-signatures > div { display: grid; align-content: start; gap: 3px; }
+.slip-signatures small { font-style: italic; }
+.print-slip-header { display: grid; grid-template-columns: 1.25fr 1fr .8fr; gap: 12px; padding-bottom: 10px; border-bottom: 1px solid #6e7778; font-size: 11px; }
+.print-company { display: grid; gap: 3px; line-height: 1.3; }
+.print-company strong { font-size: 14px; text-transform: uppercase; }
+.print-slip-title { display: grid; justify-items: center; gap: 3px; text-align: center; }
+.print-slip-title h1 { margin: 0; font-size: 18px; }
+.print-slip-title em { font-size: 12px; font-weight: 700; }
+.print-slip-title span { margin-top: 7px; }
+.print-slip-code { display: grid; justify-items: end; gap: 7px; text-align: right; font-size: 11px; }
+.print-slip-code button { padding: 6px 12px; font-family: 'Times New Roman', Times, serif; }
+.print-slip-info { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 5px 16px; margin: 14px 0 12px; font-size: 11px; line-height: 1.35; }
+.print-slip-info div:nth-child(n+3) { grid-column: span 3; }
+.print-slip-info span { font-weight: 700; }
+.print-slip-table { width: 100%; border-collapse: collapse; font-size: 10px; }
+.print-slip-table th, .print-slip-table td { border: 1px solid #90999b; padding: 6px 5px; text-align: left; vertical-align: top; }
+.print-slip-table th { background: #eef0ef; text-align: center; }
+.print-slip-table td:first-child, .print-slip-table td:nth-child(5) { text-align: center; }
+.print-slip-table small { display: block; color: #9b5e2e; }
+.print-slip-totals { display: block; width: 360px; max-width: 100%; margin-top: 12px; margin-right: 0; margin-left: auto !important; align-self: flex-end; font-size: 11px; }
+.print-slip-totals div { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #c5cccd; }
+.print-grand-total { border-bottom: 2px solid #4e5758 !important; font-size: 13px; }
+.print-slip-note { margin-top: 12px; font-size: 11px; }
+.print-slip-signatures { display: grid; grid-template-columns: repeat(3, 1fr); min-height: 100px; margin-top: 18px; text-align: center; font-size: 11px; }
+.print-slip-signatures > div { display: grid; align-content: start; gap: 3px; }
+.print-slip-signatures small { font-style: italic; }
+@media print {
+  @page { size: A4 portrait; margin: 0; }
+  html, body { width: 210mm; min-height: 297mm; margin: 0; background: #fff; }
+  body * { visibility: hidden; }
+  .warehouse-slip, .warehouse-slip * { visibility: visible; }
+  .warehouse-page { width: 210mm; max-width: none; margin: 0; padding: 0; }
+  .warehouse-page > h2, .warehouse-page > input, .warehouse-page > .actions,
+  .warehouse-page > .error, .warehouse-page > .preview { display: none; }
+  .warehouse-slip { position: absolute; left: 0; top: 0; width: 210mm; min-height: 297mm; max-width: none; margin: 0; border: 0; padding: 14mm 12mm 12mm; box-sizing: border-box; }
+  .slip-table th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .slip-toolbar button, .print-slip-code button, .slip-warning { display: none; }
+}
+@media (max-width: 760px) {
+  .warehouse-page { margin: 0; padding: 16px; }
+  .slip-toolbar { grid-template-columns: 1fr; }
+  .slip-title { justify-items: start; text-align: left; }
+  .slip-actions { justify-items: start; }
+  .slip-info-grid { grid-template-columns: 1fr; }
+  .slip-info-grid > div:nth-child(4), .slip-info-grid > div:nth-child(5), .slip-info-grid > div:nth-child(6) { grid-column: auto; }
+  .slip-table { min-width: 680px; }
+  .print-slip-header, .print-slip-info { grid-template-columns: 1fr; }
+  .print-slip-title { justify-items: start; text-align: left; }
+  .print-slip-code { justify-items: start; text-align: left; }
+  .print-slip-info div:nth-child(n+3) { grid-column: auto; }
+}
 .upload-container {
   max-width: 640px;
   margin: 24px auto;

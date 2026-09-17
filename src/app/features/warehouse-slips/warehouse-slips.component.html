@@ -1,0 +1,137 @@
+<div class="slips-container" [class.printing]="printingSlip">
+  <div class="page-header">
+    <div>
+      <span class="eyebrow">WAREHOUSE DOCUMENTS</span>
+      <h2>Danh sách phiếu xuất kho</h2>
+      <p>Các phiếu được lưu sau khi AI đọc và tạo từ ảnh đơn hàng.</p>
+    </div>
+    <div class="header-actions">
+      <button type="button" class="refresh-button" (click)="load()" [disabled]="isLoading">Làm mới</button>
+      <a routerLink="/warehouse-slips" class="create-link">Tạo phiếu mới</a>
+    </div>
+  </div>
+
+  <p class="status" *ngIf="isLoading">Đang tải danh sách...</p>
+  <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
+  <div class="empty" *ngIf="!isLoading && !errorMessage && slips.length === 0">
+    <strong>Chưa có phiếu xuất kho</strong>
+    <span>Hãy tạo phiếu đầu tiên từ ảnh đơn hàng.</span>
+    <a routerLink="/warehouse-slips">Tạo phiếu xuất kho</a>
+  </div>
+
+  <div class="slips-list" *ngIf="!isLoading && !errorMessage && slips.length > 0">
+    <article class="slip-card" *ngFor="let slip of slips; trackBy: trackBySlipId" [class.selected-for-print]="printingSlip === slip">
+      <div class="slip-warning" *ngIf="slip._meta?.can_xac_nhan_thu_cong">
+        <strong>Cần kiểm tra lại số liệu:</strong>
+        <ul>
+          <li *ngFor="let msg of slip._meta?.canh_bao">{{ msg }}</li>
+        </ul>
+      </div>
+
+      <div class="slip-summary">
+        <div class="slip-id">#{{ slip.warehouse_slip_id }}</div>
+        <div class="slip-main">
+          <strong>{{ slip.khach_hang.ten || 'Chưa xác định khách hàng' }}</strong>
+          <span>{{ slip.ky_hieu || 'Không có ký hiệu' }} · {{ slip.ngay_lap || 'Chưa có ngày lập' }}</span>
+        </div>
+        <div class="slip-customer">{{ slip.dia_chi_giao_hang.dia_chi || slip.khach_hang.dia_chi || 'Chưa có địa chỉ giao hàng' }}</div>
+        <div class="slip-total">{{ slip.tong_ket.tong_tien_thanh_toan | number }}<small>VND</small></div>
+        <button type="button" class="print-button" (click)="printSlip(slip)">In phiếu</button>
+      </div>
+
+      <details>
+        <summary>{{ slip.chi_tiet_hang_hoa.length }} dòng hàng · {{ slip.original_file_name || 'Không có tên file' }}</summary>
+        <div class="details-body">
+          <div class="detail-grid">
+            <span>Nhà cung cấp <strong>{{ slip.nha_cung_cap.ten || '—' }}</strong></span>
+            <span>Nhân viên bán hàng <strong>{{ slip.nhan_vien_ban_hang.ten || '—' }}{{ slip.nhan_vien_ban_hang.sdt ? ' · ' + slip.nhan_vien_ban_hang.sdt : '' }}</strong></span>
+            <span>Số PO <strong>{{ slip.so_po || '—' }}</strong></span>
+            <span>Ngày lưu <strong>{{ slip.created_at | date:'short' }}</strong></span>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>STT</th><th>Mã số</th><th>Sản phẩm</th><th>SL</th><th>Đơn giá</th><th>Thành tiền</th><th>Lô/Lot</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of slip.chi_tiet_hang_hoa; trackBy: trackByItemStt">
+                <td>{{ item.stt }}</td>
+                <td>{{ item.ma_so || '—' }}</td>
+                <td>{{ item.ten_san_pham }}<small *ngIf="item.khuyen_mai">Hàng khuyến mãi</small></td>
+                <td>{{ item.sl }} {{ item.dvt || '' }}</td>
+                <td>{{ item.don_gia | number }}</td>
+                <td>{{ item.thanh_tien | number }}</td>
+                <td>{{ item.lo_lot || '—' }}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="tong-ket">
+            <div class="tong-ket-row">
+              <span>Cộng tiền hàng</span>
+              <strong>{{ slip.tong_ket.cong_tien_hang | number }}</strong>
+            </div>
+            <div class="tong-ket-row" *ngIf="slip.tong_ket.chiet_khau">
+              <span>Chiết khấu</span>
+              <strong>-{{ slip.tong_ket.chiet_khau | number }}</strong>
+            </div>
+            <div class="tong-ket-row">
+              <span>Thuế GTGT{{ slip.tong_ket.thue_suat_gtgt ? ' (' + slip.tong_ket.thue_suat_gtgt + ')' : '' }}</span>
+              <strong>{{ slip.tong_ket.tien_thue_gtgt | number }}</strong>
+            </div>
+            <div class="tong-ket-row tong-ket-final">
+              <span>Tổng tiền thanh toán</span>
+              <strong>{{ slip.tong_ket.tong_tien_thanh_toan | number }} VND</strong>
+            </div>
+          </div>
+
+          <p class="note" *ngIf="slip.ghi_chu"><strong>Ghi chú:</strong> {{ slip.ghi_chu }}</p>
+        </div>
+      </details>
+    </article>
+  </div>
+
+  <section class="print-slip-sheet" *ngIf="printingSlip">
+    <div class="print-slip-header">
+      <div class="print-company">
+        <strong>{{ printingSlip.nha_cung_cap.ten || 'TÊN CÔNG TY' }}</strong>
+        <span>{{ printingSlip.nha_cung_cap.dia_chi || 'Địa chỉ công ty' }}</span>
+        <span *ngIf="printingSlip.nha_cung_cap.ma_so_thue">Mã số thuế: {{ printingSlip.nha_cung_cap.ma_so_thue }}</span>
+      </div>
+      <div class="print-slip-title">
+        <h1>PHIẾU XUẤT KHO</h1>
+        <em>(KIÊM LỆNH GIAO HÀNG)</em>
+        <span>Ngày {{ printingSlip.ngay_lap || '—' }}</span>
+      </div>
+      <div class="print-slip-code">Ký hiệu: <strong>{{ printingSlip.ky_hieu || '—' }}</strong></div>
+    </div>
+
+    <div class="print-slip-info">
+      <div><span>Nhân viên bán hàng:</span> {{ printingSlip.nhan_vien_ban_hang.ten || '—' }} {{ printingSlip.nhan_vien_ban_hang.sdt || '' }}</div>
+      <div><span>Số PO:</span> {{ printingSlip.so_po || '—' }}</div>
+      <div><span>Tên khách hàng:</span> {{ printingSlip.khach_hang.ten || '—' }}</div>
+      <div><span>Địa chỉ:</span> {{ printingSlip.khach_hang.dia_chi || '—' }}</div>
+      <div><span>Địa chỉ giao hàng:</span> {{ printingSlip.dia_chi_giao_hang.dia_chi || '—' }} {{ printingSlip.dia_chi_giao_hang.sdt || '' }}</div>
+    </div>
+
+    <table class="print-slip-table">
+      <thead><tr><th>STT</th><th>Mã số</th><th>TÊN SẢN PHẨM</th><th>ĐVT</th><th>SL</th><th>ĐƠN GIÁ</th><th>THÀNH TIỀN</th><th>LÔ/LOT</th></tr></thead>
+      <tbody>
+        <tr *ngFor="let item of printingSlip.chi_tiet_hang_hoa; trackBy: trackByItemStt">
+          <td>{{ item.stt }}</td><td>{{ item.ma_so || '—' }}</td><td>{{ item.ten_san_pham }}<small *ngIf="item.khuyen_mai">Hàng khuyến mãi</small></td><td>{{ item.dvt || '—' }}</td><td>{{ item.sl }}</td><td>{{ item.don_gia | number }}</td><td>{{ item.thanh_tien | number }}</td><td>{{ item.lo_lot || '—' }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="print-slip-totals">
+      <div><span>Cộng tiền hàng</span><strong>{{ printingSlip.tong_ket.cong_tien_hang | number }}</strong></div>
+      <div><span>Chiết khấu</span><strong>{{ printingSlip.tong_ket.chiet_khau | number }}</strong></div>
+      <div><span>Thuế GTGT ({{ printingSlip.tong_ket.thue_suat_gtgt || '—' }})</span><strong>{{ printingSlip.tong_ket.tien_thue_gtgt | number }}</strong></div>
+      <div class="print-grand-total"><span>TỔNG TIỀN THANH TOÁN</span><strong>{{ printingSlip.tong_ket.tong_tien_thanh_toan | number }}</strong></div>
+    </div>
+    <p class="print-slip-note" *ngIf="printingSlip.ghi_chu"><strong>Ghi chú:</strong> {{ printingSlip.ghi_chu }}</p>
+    <div class="print-slip-signatures"><div><strong>Người nhận hàng</strong><small>(Ký, ghi rõ họ tên)</small></div><div><strong>Người giao hàng</strong><small>(Ký, ghi rõ họ tên)</small></div><div><strong>Thủ kho</strong><small>(Ký, ghi rõ họ tên)</small></div></div>
+  </section>
+</div>
