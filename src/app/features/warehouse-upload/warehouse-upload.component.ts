@@ -2,6 +2,14 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../core/services/api.service';
 import { WarehouseSlip } from '../../core/models/models';
+import { catchError, forkJoin, of } from 'rxjs';
+
+interface WarehouseBatchItem {
+  file: File;
+  status: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'ERROR';
+  result: WarehouseSlip | null;
+  error: string | null;
+}
 
 @Component({
   selector: 'app-warehouse-upload',
@@ -12,6 +20,8 @@ import { WarehouseSlip } from '../../core/models/models';
 })
 export class WarehouseUploadComponent {
   selectedFile: File | null = null;
+  selectedFiles: File[] = [];
+  batchItems: WarehouseBatchItem[] = [];
   previewUrl: string | null = null;
   warehouseSlip: WarehouseSlip | null = null;
   isLoading = false;
@@ -24,7 +34,9 @@ export class WarehouseUploadComponent {
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (!input.files?.length) return;
-    this.selectedFile = input.files[0];
+    this.selectedFiles = Array.from(input.files);
+    this.batchItems = this.selectedFiles.map((file) => ({ file, status: 'PENDING', result: null, error: null }));
+    this.selectedFile = this.selectedFiles[0];
     this.warehouseSlip = null;
     this.errorMessage = null;
     const reader = new FileReader();
@@ -33,19 +45,33 @@ export class WarehouseUploadComponent {
   }
 
   analyze(): void {
-    if (!this.selectedFile) return;
+    if (!this.selectedFiles.length) return;
     this.isLoading = true;
     this.errorMessage = null;
-    this.api.analyzeWarehouseSlip(this.selectedFile).subscribe({
-      next: (slip) => {
-        this.warehouseSlip = slip;
-        this.isLoading = false;
-      },
-      error: (err) => {
-        this.errorMessage = err?.error?.error || 'Có lỗi xảy ra khi tạo phiếu xuất kho.';
-        this.isLoading = false;
-      },
+    this.batchItems.forEach((item) => { item.status = 'PROCESSING'; item.error = null; });
+    forkJoin(this.batchItems.map((item) => this.api.analyzeWarehouseSlip(item.file).pipe(
+      catchError((err) => of({ error: err?.error?.error || 'Có lỗi xảy ra khi phân tích tài liệu.' })),
+    ))).subscribe((responses) => {
+      responses.forEach((response, index) => {
+        const item = this.batchItems[index];
+        if ('error' in response) {
+          item.status = 'ERROR';
+          item.error = response.error;
+          return;
+        }
+        item.status = 'COMPLETED';
+        item.result = response;
+      });
+      const firstCompleted = this.batchItems.find((item) => item.result);
+      if (firstCompleted?.result) this.selectBatchResult(firstCompleted);
+      this.isLoading = false;
     });
+  }
+
+  selectBatchResult(item: WarehouseBatchItem): void {
+    if (!item.result) return;
+    this.selectedFile = item.file;
+    this.warehouseSlip = item.result;
   }
 
   get formattedNgayLap(): string {
@@ -58,6 +84,8 @@ export class WarehouseUploadComponent {
 
   reset(): void {
     this.selectedFile = null;
+    this.selectedFiles = [];
+    this.batchItems = [];
     this.previewUrl = null;
     this.warehouseSlip = null;
     this.errorMessage = null;

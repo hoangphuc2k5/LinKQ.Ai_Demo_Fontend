@@ -84,13 +84,19 @@
   .print-slip-info div:nth-child(n+3) { grid-column: auto; }
 }
 .upload-container {
-  max-width: 640px;
-  margin: 24px auto;
-  padding: 24px;
-  border: 1px solid #e0e0e0;
-  border-radius: 12px;
+  max-width: 920px;
+  margin: 32px auto;
+  padding: 32px;
+  border: 1px solid #dbe3ea;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 16px 45px rgba(31, 55, 72, .08);
   font-family: system-ui, sans-serif;
 }
+
+.upload-container h2 { margin: 0 0 20px; color: #173f4f; font-size: 24px; letter-spacing: -.3px; }
+.upload-container > input[type='file'] { width: 100%; box-sizing: border-box; padding: 10px; border: 1px dashed #9eb4c1; border-radius: 10px; background: #f7fafc; color: #405462; }
+.upload-container > input[type='file']::file-selector-button { margin-right: 12px; padding: 8px 13px; border: 0; border-radius: 7px; background: #173f4f; color: #fff; cursor: pointer; }
 
 .preview img {
   max-width: 100%;
@@ -98,6 +104,24 @@
   margin: 12px 0;
   border-radius: 8px;
 }
+
+.batch-gallery { margin: 22px 0; }
+.batch-gallery h3 { margin: 0 0 10px; color: #173f4f; font-size: 15px; }
+.gallery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+.gallery-item { display: grid; gap: 8px; min-width: 0; margin: 0; padding: 10px; border: 1px solid #dbe3ea; border-radius: 10px; background: #f8fafc; }
+.gallery-item img { width: 100%; height: 240px; object-fit: contain; border-radius: 6px; background: #e9eef1; }
+.gallery-item figcaption { overflow: hidden; color: #52636d; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+
+.batch-list { display: grid; gap: 8px; margin: 20px 0; }
+.batch-list h3 { margin: 0 0 4px; color: #173f4f; font-size: 15px; }
+.batch-item { display: grid; grid-template-columns: 48px minmax(0, 1fr) auto; align-items: center; gap: 4px 14px; width: 100%; padding: 8px 12px; border: 1px solid #dbe3e8; border-radius: 9px; background: #f8fafc; color: #1f2937; text-align: left; }
+.batch-item.active { border-color: #2563eb; background: #eff6ff; }
+.batch-preview { display: grid; width: 48px; height: 48px; place-items: center; overflow: hidden; border-radius: 6px; background: #e2e8f0; color: #64748b; font-size: 10px; font-weight: 800; }
+.batch-preview img { width: 100%; height: 100%; object-fit: cover; }
+.document-preview { background: #e7eef2; }
+.batch-file-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.batch-status { color: #166534; font-size: 12px; font-weight: 700; text-align: right; }
+.error-status { grid-column: 1 / -1; max-width: none; overflow-wrap: anywhere; color: #b42318; font-weight: 500; line-height: 1.35; text-align: left; white-space: normal; }
 
 .actions {
   display: flex;

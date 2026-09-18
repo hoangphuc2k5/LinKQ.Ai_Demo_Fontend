@@ -1,14 +1,23 @@
 <main class="warehouse-upload-page">
   <section class="upload-tools">
     <h2>Tạo phiếu xuất kho</h2>
-    <input type="file" accept="image/*" (change)="onFileSelected($event)" />
+    <input type="file" multiple (change)="onFileSelected($event)" />
+    <section class="batch-list" *ngIf="batchItems.length">
+      <h3>Danh sách phiếu và tài liệu ({{ batchItems.length }})</h3>
+      <button type="button" class="batch-item" *ngFor="let item of batchItems" (click)="selectBatchResult(item)" [class.active]="item.result === warehouseSlip">
+        <span class="batch-file-name">{{ item.file.name }}</span>
+        <span class="batch-status" [class.error-status]="item.status === 'ERROR'">
+          {{ item.status === 'PENDING' ? 'Chờ phân tích' : item.status === 'PROCESSING' ? 'Đang phân tích' : item.status === 'COMPLETED' ? 'Hoàn tất' : 'Lỗi: ' + item.error }}
+        </span>
+      </button>
+    </section>
     <div class="actions">
       <button type="button" [disabled]="!selectedFile || isLoading" (click)="analyze()">
-        {{ isLoading ? 'Đang phân tích...' : 'Tạo phiếu xuất kho bằng AI' }}
+        {{ isLoading ? 'Đang phân tích...' : 'Phân tích tài liệu bằng AI' }}
       </button>
-      <button type="button" class="secondary" *ngIf="selectedFile" (click)="reset()" [disabled]="isLoading">Xóa</button>
+      <button type="button" class="secondary" *ngIf="selectedFiles.length" (click)="reset()" [disabled]="isLoading">Xóa danh sách</button>
     </div>
-    <img *ngIf="previewUrl && !warehouseSlip" class="preview" [src]="previewUrl" alt="Ảnh đơn hàng" />
+    <img *ngIf="previewUrl && !warehouseSlip && selectedFile?.type?.startsWith('image/')" class="preview" [src]="previewUrl" alt="Tài liệu đơn hàng" />
     <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
   </section>
 
@@ -18,10 +27,10 @@
         <div class="print-company-brand" *ngIf="warehouseSlip.nha_cung_cap.logo_url">
           <img class="print-logo" [src]="warehouseSlip.nha_cung_cap.logo_url" alt="Logo" />
         </div>
-        <strong>{{ warehouseSlip.nha_cung_cap.ten || 'TÊN CÔNG TY' }}</strong>
-        <span>{{ warehouseSlip.nha_cung_cap.dia_chi || 'Địa chỉ công ty' }}</span>
+        <strong>{{ warehouseSlip.nha_cung_cap.ten }}</strong>
+        <span>{{ warehouseSlip.nha_cung_cap.dia_chi }}</span>
         <span *ngIf="warehouseSlip.nha_cung_cap.ma_so_thue || warehouseSlip.nha_cung_cap.so_tai_khoan">
-          Mã số thuế: {{ warehouseSlip.nha_cung_cap.ma_so_thue || '—' }}<ng-container *ngIf="warehouseSlip.nha_cung_cap.so_tai_khoan"> &nbsp;-&nbsp; Số tài khoản: {{ warehouseSlip.nha_cung_cap.so_tai_khoan }}</ng-container>
+          Mã số thuế: {{ warehouseSlip.nha_cung_cap.ma_so_thue }}<ng-container *ngIf="warehouseSlip.nha_cung_cap.so_tai_khoan"> &nbsp;-&nbsp; Số tài khoản: {{ warehouseSlip.nha_cung_cap.so_tai_khoan }}</ng-container>
         </span>
         <span *ngIf="warehouseSlip.nha_cung_cap.hotline || warehouseSlip.nha_cung_cap.fax">
           Hotline: {{ warehouseSlip.nha_cung_cap.hotline || '—' }}<ng-container *ngIf="warehouseSlip.nha_cung_cap.fax"> &nbsp;-&nbsp; Fax: {{ warehouseSlip.nha_cung_cap.fax }}</ng-container>
@@ -89,10 +98,7 @@
     </div>
 
     <div class="print-slip-footer">
-      <p class="print-slip-caution">
-        Lưu ý: khách hàng vui lòng kiểm tra hàng hóa trước khi ký nhận, sau khi ký nhận hàng hóa đã được chuyển giao quyền sở hữu và
-        {{ warehouseSlip.nha_cung_cap.ten || 'công ty' }} không giải quyết vấn đề về số lượng hàng hóa.
-      </p>
+      <p class="print-slip-caution" *ngIf="warehouseSlip.ghi_chu">{{ warehouseSlip.ghi_chu }}</p>
       <div class="print-slip-meta">
         <span>Trang: {{ warehouseSlip.trang || '1/1' }}</span>
         <span *ngIf="warehouseSlip.thoi_gian_in">{{ warehouseSlip.thoi_gian_in }}</span>

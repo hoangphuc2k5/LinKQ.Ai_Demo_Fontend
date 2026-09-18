@@ -1,17 +1,37 @@
 <div class="upload-container">
-  <h2>Tải ảnh giao dịch thanh toán</h2>
+  <h2>Tải tài liệu giao dịch thanh toán</h2>
 
-  <input type="file" accept="image/*" (change)="onFileSelected($event)" />
+  <input type="file" multiple (change)="onFileSelected($event)" />
 
-  <div *ngIf="previewUrl" class="preview">
-    <img [src]="previewUrl" alt="preview" />
-  </div>
+  <section class="batch-list" *ngIf="batchItems.length">
+    <h3>Danh sách tài liệu ({{ batchItems.length }})</h3>
+    <button type="button" class="batch-item" *ngFor="let item of batchItems" (click)="selectBatchResult(item)" [class.active]="item.result === result">
+      <span class="batch-preview" [class.document-preview]="!item.previewUrl">
+        <img *ngIf="item.previewUrl" [src]="item.previewUrl" [alt]="item.file.name" />
+        <span *ngIf="!item.previewUrl">DOC</span>
+      </span>
+      <span class="batch-file-name">{{ item.file.name }}</span>
+      <span class="batch-status" [class.error-status]="item.status === 'ERROR'">
+        {{ item.status === 'PENDING' ? 'Chờ phân tích' : item.status === 'PROCESSING' ? 'Đang phân tích' : item.status === 'COMPLETED' ? 'Hoàn tất' : 'Lỗi: ' + item.error }}
+      </span>
+    </button>
+  </section>
+
+  <section class="batch-gallery" *ngIf="imageBatchItems.length">
+    <h3>Xem trước hình ảnh ({{ imageBatchItems.length }})</h3>
+    <div class="gallery-grid">
+      <figure *ngFor="let item of imageBatchItems" class="gallery-item">
+        <img [src]="item.previewUrl" [alt]="item.file.name" />
+        <figcaption>{{ item.file.name }}</figcaption>
+      </figure>
+    </div>
+  </section>
 
   <div class="actions">
     <button [disabled]="!selectedFile || isLoading" (click)="analyze()">
-      {{ isLoading ? 'Đang phân tích...' : 'Phân tích ảnh bằng AI' }}
+      {{ isLoading ? 'Đang phân tích...' : 'Phân tích tài liệu bằng AI' }}
     </button>
-    <button *ngIf="selectedFile" (click)="reset()" [disabled]="isLoading">Xoá</button>
+    <button *ngIf="selectedFiles.length" (click)="reset()" [disabled]="isLoading">Xoá danh sách</button>
   </div>
 
   <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>

@@ -1,12 +1,21 @@
 .warehouse-upload-page { max-width: 1120px; margin: 24px auto; font-family: 'Times New Roman', Times, serif; }
-.upload-tools { font-family: system-ui, sans-serif; margin-bottom: 24px; }
-.upload-tools h2 { color: #173f4f; }
+.upload-tools { max-width: 920px; margin: 32px auto 24px; padding: 32px; border: 1px solid #dbe3ea; border-radius: 16px; background: #fff; box-shadow: 0 16px 45px rgba(31, 55, 72, .08); font-family: system-ui, sans-serif; }
+.upload-tools h2 { margin: 0 0 20px; color: #173f4f; font-size: 24px; }
+.upload-tools > input[type='file'] { width: 100%; box-sizing: border-box; padding: 10px; border: 1px dashed #9eb4c1; border-radius: 10px; background: #f7fafc; color: #405462; }
+.upload-tools > input[type='file']::file-selector-button { margin-right: 12px; padding: 8px 13px; border: 0; border-radius: 7px; background: #173f4f; color: #fff; cursor: pointer; }
 .actions { display: flex; gap: 8px; margin: 12px 0; }
 button { padding: 8px 16px; border: 0; border-radius: 6px; background: #2563eb; color: #fff; cursor: pointer; font: inherit; }
 button.secondary { background: #64748b; }
 button:disabled { opacity: .55; cursor: not-allowed; }
 .preview { display: block; max-width: 640px; max-height: 320px; margin-top: 12px; }
 .error { color: #b42318; }
+.batch-list { display: grid; gap: 8px; max-width: 100%; margin: 20px 0; font-family: system-ui, sans-serif; }
+.batch-list h3 { margin: 0 0 4px; font-size: 15px; }
+.batch-item { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 4px 14px; width: 100%; padding: 12px 14px; border: 1px solid #dbe3e8; border-radius: 9px; background: #f8fafc; color: #1f2937; text-align: left; }
+.batch-item.active { border-color: #2563eb; background: #eff6ff; }
+.batch-file-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.batch-status { color: #166534; font-size: 12px; font-weight: 700; text-align: right; }
+.error-status { grid-column: 1 / -1; max-width: none; overflow-wrap: anywhere; color: #b42318; font-weight: 500; line-height: 1.35; text-align: left; white-space: normal; }
 
 .warehouse-slip { width: 210mm; max-width: 100%; box-sizing: border-box; margin: 24px auto 0; padding: 14mm 12mm 12mm; border: 1px solid #9da6a8; background: #fff; color: #202728; }
 

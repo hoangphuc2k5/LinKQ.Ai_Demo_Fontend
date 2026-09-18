@@ -96,8 +96,8 @@
   <section class="print-slip-sheet" *ngIf="printingSlip">
     <div class="print-slip-header">
       <div class="print-company">
-        <strong>{{ printingSlip.nha_cung_cap.ten || 'TÊN CÔNG TY' }}</strong>
-        <span>{{ printingSlip.nha_cung_cap.dia_chi || 'Địa chỉ công ty' }}</span>
+        <strong>{{ printingSlip.nha_cung_cap.ten }}</strong>
+        <span>{{ printingSlip.nha_cung_cap.dia_chi }}</span>
         <span *ngIf="printingSlip.nha_cung_cap.ma_so_thue">Mã số thuế: {{ printingSlip.nha_cung_cap.ma_so_thue }}</span>
       </div>
       <div class="print-slip-title">

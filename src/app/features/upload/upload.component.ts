@@ -4,6 +4,15 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ApiService } from '../../core/services/api.service';
 import { AnalyzeResponse, Customer, CustomerInput, PaymentOrder } from '../../core/models/models';
+import { catchError, forkJoin, of } from 'rxjs';
+
+interface TransactionBatchItem {
+  file: File;
+  previewUrl: string | null;
+  status: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'ERROR';
+  result: AnalyzeResponse | null;
+  error: string | null;
+}
 
 @Component({
   selector: 'app-upload',
@@ -14,6 +23,8 @@ import { AnalyzeResponse, Customer, CustomerInput, PaymentOrder } from '../../co
 })
 export class UploadComponent {
   selectedFile: File | null = null;
+  selectedFiles: File[] = [];
+  batchItems: TransactionBatchItem[] = [];
   previewUrl: string | null = null;
 
   isLoading = false;
@@ -31,11 +42,23 @@ export class UploadComponent {
 
   constructor(private api: ApiService) {}
 
+  get imageBatchItems(): TransactionBatchItem[] {
+    return this.batchItems.filter((item) => !!item.previewUrl);
+  }
+
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) return;
 
-    this.selectedFile = input.files[0];
+    this.selectedFiles = Array.from(input.files);
+    this.batchItems = this.selectedFiles.map((file) => ({
+      file,
+      previewUrl: file.type.startsWith('image/') ? URL.createObjectURL(file) : null,
+      status: 'PENDING',
+      result: null,
+      error: null,
+    }));
+    this.selectedFile = this.selectedFiles[0];
     this.result = null;
     this.errorMessage = null;
     this.paymentConfirmationMessage = null;
@@ -46,24 +69,38 @@ export class UploadComponent {
   }
 
   analyze(): void {
-    if (!this.selectedFile) return;
+    if (!this.selectedFiles.length) return;
 
     this.isLoading = true;
     this.errorMessage = null;
     this.result = null;
+    this.batchItems.forEach((item) => { item.status = 'PROCESSING'; item.error = null; });
 
-    this.api.analyzeImage(this.selectedFile).subscribe({
-      next: (res) => {
-        this.result = res;
-        this.setMatchedCustomer(res.transaction.MatchedCustomerId);
-        this.loadPaymentOrders(res.transaction.MatchedCustomerId);
-        this.isLoading = false;
-      },
-      error: (err) => {
-        this.errorMessage = err?.error?.error || 'Có lỗi xảy ra khi phân tích ảnh.';
-        this.isLoading = false;
-      },
+    forkJoin(this.batchItems.map((item) => this.api.analyzeImage(item.file).pipe(
+      catchError((err) => of({ error: err?.error?.error || 'Có lỗi xảy ra khi phân tích tài liệu.' })),
+    ))).subscribe((responses) => {
+      responses.forEach((response, index) => {
+        const item = this.batchItems[index];
+        if ('error' in response) {
+          item.status = 'ERROR';
+          item.error = response.error;
+          return;
+        }
+        item.status = 'COMPLETED';
+        item.result = response;
+      });
+      const firstCompleted = this.batchItems.find((item) => item.result);
+      if (firstCompleted?.result) this.selectBatchResult(firstCompleted);
+      this.isLoading = false;
     });
+  }
+
+  selectBatchResult(item: TransactionBatchItem): void {
+    if (!item.result) return;
+    this.selectedFile = item.file;
+    this.result = item.result;
+    this.setMatchedCustomer(item.result.transaction.MatchedCustomerId);
+    this.loadPaymentOrders(item.result.transaction.MatchedCustomerId);
   }
 
   confirmCandidate(customer: Customer): void {
@@ -125,7 +162,7 @@ export class UploadComponent {
       bankAccountNumber: extracted?.receiverAccountNumber || '',
       bankName: extracted?.receiverBankName || extracted?.bankName || '',
       accountHolderName: extracted?.receiverAccountName || '',
-      note: 'Tạo từ kết quả phân tích ảnh giao dịch',
+      note: 'Tạo từ kết quả phân tích tài liệu giao dịch',
     };
   }
 
@@ -150,7 +187,12 @@ export class UploadComponent {
   }
 
   reset(): void {
+    this.batchItems.forEach((item) => {
+      if (item.previewUrl) URL.revokeObjectURL(item.previewUrl);
+    });
     this.selectedFile = null;
+    this.selectedFiles = [];
+    this.batchItems = [];
     this.previewUrl = null;
     this.result = null;
     this.matchedCustomer = null;
