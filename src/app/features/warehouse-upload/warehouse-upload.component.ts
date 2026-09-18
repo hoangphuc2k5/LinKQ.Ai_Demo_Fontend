@@ -34,7 +34,14 @@ export class WarehouseUploadComponent {
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (!input.files?.length) return;
-    this.selectedFiles = Array.from(input.files);
+    const files = Array.from(input.files);
+    if (files.some((file) => file.name.toLowerCase().endsWith('.rar'))) {
+      input.value = '';
+      this.errorMessage = 'Không hỗ trợ file RAR. Vui lòng chọn định dạng tài liệu khác.';
+      return;
+    }
+
+    this.selectedFiles = files;
     this.batchItems = this.selectedFiles.map((file) => ({ file, status: 'PENDING', result: null, error: null }));
     this.selectedFile = this.selectedFiles[0];
     this.warehouseSlip = null;

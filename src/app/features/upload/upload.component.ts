@@ -50,7 +50,14 @@ export class UploadComponent {
     const input = event.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) return;
 
-    this.selectedFiles = Array.from(input.files);
+    const files = Array.from(input.files);
+    if (files.some((file) => file.name.toLowerCase().endsWith('.rar'))) {
+      input.value = '';
+      this.errorMessage = 'Không hỗ trợ file RAR. Vui lòng chọn định dạng tài liệu khác.';
+      return;
+    }
+
+    this.selectedFiles = files;
     this.batchItems = this.selectedFiles.map((file) => ({
       file,
       previewUrl: file.type.startsWith('image/') ? URL.createObjectURL(file) : null,
