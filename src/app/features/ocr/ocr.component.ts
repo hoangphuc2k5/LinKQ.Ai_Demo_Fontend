@@ -1,7 +1,8 @@
 import { Component, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../core/services/api.service';
-import { firstValueFrom } from 'rxjs';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 interface OcrImageItem {
   file: File;
@@ -78,7 +79,7 @@ export class OcrComponent {
     this.imageItems = [...this.imageItems];
   }
 
-  async readText(): Promise<void> {
+  readText(): void {
     if (!this.imageItems.length || this.isReading) return;
 
     this.isReading = true;
@@ -87,15 +88,15 @@ export class OcrComponent {
       item.text = null;
       item.error = null;
     });
-    for (const item of this.imageItems) {
-      try {
-        const response = await firstValueFrom(this.api.readImageText(item.file));
-        item.text = response.text;
-      } catch (error: any) {
-        item.error = error?.error?.error || 'Không thể đọc ảnh này.';
-      }
-    }
-    this.isReading = false;
+    forkJoin(this.imageItems.map((item) => this.api.readImageText(item.file).pipe(
+      catchError((error) => of({ error: error?.error?.error || 'Không thể đọc ảnh này.' })),
+    ))).subscribe((responses) => {
+      responses.forEach((response, index) => {
+        if ('error' in response) this.imageItems[index].error = response.error;
+        else this.imageItems[index].text = response.text;
+      });
+      this.isReading = false;
+    });
   }
 
   clearImages(): void {
