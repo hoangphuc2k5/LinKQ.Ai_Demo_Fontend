@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AnalyzeResponse, Customer, CustomerInput, OcrResponse, PaymentOrder, Transaction, WarehouseSlip } from '../models/models';
 
-const API_BASE = 'https://localhost:3000/api';
+const API_BASE = 'https://demo-ai-api.vercel.app/api';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
