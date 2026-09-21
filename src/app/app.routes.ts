@@ -5,10 +5,12 @@ import { CustomersComponent } from './features/customers/customers.component';
 import { PaymentOrdersComponent } from './features/payment-orders/payment-orders.component';
 import { WarehouseSlipsComponent } from './features/warehouse-slips/warehouse-slips.component';
 import { WarehouseUploadComponent } from './features/warehouse-upload/warehouse-upload.component';
+import { OcrComponent } from './features/ocr/ocr.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'upload', pathMatch: 'full' },
   { path: 'upload', component: UploadComponent },
+  { path: 'ocr', component: OcrComponent },
   { path: 'warehouse-slips', component: WarehouseUploadComponent },
   { path: 'warehouse-slips/list', component: WarehouseSlipsComponent },
   { path: 'transactions', component: TransactionsComponent },

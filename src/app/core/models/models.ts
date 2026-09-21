@@ -86,6 +86,11 @@ export interface AnalyzeResponse {
   matchCandidates: MatchCandidate[];
 }
 
+export interface OcrResponse {
+  text: string;
+  fileName: string | null;
+}
+
 export interface WarehouseSlipItem {
   stt: number;
   ma_so: string | null;

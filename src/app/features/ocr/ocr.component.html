@@ -1,0 +1,32 @@
+<main class="ocr-container">
+  <h2>Đọc văn bản từ ảnh</h2>
+  <p class="description">Chọn nhiều ảnh hoặc nhấn Ctrl+V để dán ảnh từ clipboard.</p>
+
+  <input type="file" accept="image/*" multiple (change)="onFileSelected($event)" />
+
+  <section class="image-list" *ngIf="imageItems.length">
+    <article class="image-item" *ngFor="let item of imageItems; let index = index">
+      <img class="preview" [src]="item.previewUrl" [alt]="item.file.name" />
+      <div class="image-info">
+        <strong>{{ item.file.name }}</strong>
+        <button type="button" class="remove-button" (click)="removeImage(index)" [disabled]="isReading">Xóa</button>
+      </div>
+    </article>
+  </section>
+
+  <button type="button" (click)="readText()" [disabled]="!imageItems.length || isReading">
+    {{ isReading ? 'Đang đọc ' + imageItems.length + ' ảnh...' : 'Đọc văn bản từ ' + imageItems.length + ' ảnh' }}
+  </button>
+  <button type="button" class="clear-button" *ngIf="imageItems.length" (click)="clearImages()" [disabled]="isReading">Xóa tất cả</button>
+
+  <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+  <section class="result" *ngIf="hasResults">
+    <h3>Kết quả đọc văn bản</h3>
+    <article class="text-result" *ngFor="let item of imageItems">
+      <strong>{{ item.file.name }}</strong>
+      <p class="error" *ngIf="item.error">{{ item.error }}</p>
+      <textarea *ngIf="item.text !== null" readonly [value]="item.text" rows="8" [attr.aria-label]="'Văn bản của ' + item.file.name"></textarea>
+    </article>
+  </section>
+</main>

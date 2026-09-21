@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { AnalyzeResponse, Customer, CustomerInput, PaymentOrder, Transaction, WarehouseSlip } from '../models/models';
+import { AnalyzeResponse, Customer, CustomerInput, OcrResponse, PaymentOrder, Transaction, WarehouseSlip } from '../models/models';
 
 const API_BASE = 'https://demo-ai-api.vercel.app/api';
 
@@ -14,6 +14,12 @@ export class ApiService {
     const formData = new FormData();
     formData.append('file', file);
     return this.http.post<AnalyzeResponse>(`${API_BASE}/transactions/analyze`, formData);
+  }
+
+  readImageText(file: File): Observable<OcrResponse> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<OcrResponse>(`${API_BASE}/ocr/read`, formData);
   }
 
   analyzeWarehouseSlip(file: File): Observable<WarehouseSlip> {

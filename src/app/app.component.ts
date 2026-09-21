@@ -8,6 +8,7 @@ import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
   template: `
     <nav class="nav">
       <a routerLink="/upload" routerLinkActive="active">Tải & Phân tích ảnh</a>
+      <a routerLink="/ocr" routerLinkActive="active">Đọc văn bản từ ảnh</a>
       <a routerLink="/warehouse-slips" routerLinkActive="active">Phiếu xuất kho</a>
       <a routerLink="/warehouse-slips/list" routerLinkActive="active">Danh sách phiếu xuất kho</a>
       <a routerLink="/transactions" routerLinkActive="active">Danh sách giao dịch</a>
